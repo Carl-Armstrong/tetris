@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // The Tetrominoes
     const lTetromino = [
         [1, width+1, width*2+1, 2],
-        [width, width+1, width+2, width*2+2]
-        [1, width+1, width*2+1, width],
+        [width, width+1, width+2, width*2+2],
+        [1, width+1, width*2+1, width*2],
         [width, width*2, width*2+1, width*2+2]
     ]
 
@@ -57,8 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         })
     }
 
-    draw()
-
     //undraw the Tetromino
     function undraw() {
         current.forEach(index => {
@@ -66,5 +64,80 @@ document.addEventListener('DOMContentLoaded', () => {
         })
     }
 
+    // make the tetromino move down evry second
+    timerId = setInterval(moveDown, 1000)
+
+    //assign functions to keyCodes
+    function control(e) {
+        if(e.keyCode === 37) {
+            moveLeft()
+        } else if (e.keyCode === 38) {
+            rotate()
+        } else if (e.keyCode === 39) {
+            moveRight()
+        } else if (e.keyCode === 40) {
+            moveDown()
+        }
+    }
+    document.addEventListener('keyup', control)
+
+    // moveDown function
+function moveDown() {
+    undraw()
+    currentPosition += width
+    draw()
+    freeze()
+}
+
+// freeze function
+function freeze() {
+    if (current.some(index => squares[currentPosition + index + width].classList.contains('taken')))
+    {current.forEach(index => squares[currentPosition + index].classList.add('taken'))
+    //start a new tetrimno falling
+    random = Math.floor(Math.random()*theTetrominoes.length)
+    current = theTetrominoes[random][currentRotation]
+    currentPosition = 4
+    draw()
+    }
+}
+
+//move the tetromino left, unless is at the edge or there is a blockage
+function moveLeft() {
+    undraw()
+    const isAtLeftEdge = current.some(index => (currentPosition + index) % width === 0)
+
+    if(!isAtLeftEdge) currentPosition -=1
+
+    if(current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+        currentPosition +=1
+    }
+
+    draw()
+}
+
+// move the tetromino right, unless is at the edge or there is a blockage
+function moveRight() {
+    undraw()
+    const isAtRightEdge = current.some(index => (currentPosition + index +1) % width === 0)
+
+    if(!isAtRightEdge) currentPosition +=1
+    if(current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+        currentPosition -=1
+    }
+
+    draw()
+}
+
+//rotate the tetromino
+function rotate() {
+    undraw()
+    currentRotation ++
+    if(currentRotation === current.length) {  // if the currentRotation gets to 4, send it back to 0
+        currentRotation = 0
+    }
+    current = theTetrominoes[random][currentRotation]
+
+    draw()
+}
 
 })
